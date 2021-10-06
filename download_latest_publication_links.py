@@ -9,7 +9,6 @@ All publications in DiVA have a URN, some have DOI and none have ORCID
 Next step is to parse the publication pages"""
 #!/usr/bin/env python3
 
-from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
 import requests
