@@ -1,12 +1,12 @@
-"""This script downloads all links from the latest publications in DiVA
+"""This script downloads all the latest publications in DiVA
 
-Currently a total of ~88.000 links can be fetched this way,
+Currently a total of ~1800 links can be fetched this way,
 but they are not stable, so we only use them to download the
 publication page and extract from there.
 
-All publications in DiVA have a URN, some have DOI and none have ORCID
-
-Next step is to parse the publication pages"""
+All publications in DiVA have a URN, some have DOI
+and some authors also have ORCID
+"""
 #!/usr/bin/env python3
 import logging
 from urllib.parse import urlparse, parse_qs
@@ -27,11 +27,13 @@ def main():
     # has 1765 pages with 50 publications each.
     # &p=1 <- first page
     # &p=51 <- second page
-    total_publications = 1765*50
+    total_publications = 1765
     print(f"There are a total of {total_publications} latest publications to scrape")
-    for i in range(1651,total_publications,50):
+    for i in range(1701,total_publications,50):
         print(i)
-        response = requests.get(f"{latest_url}&p={i}")
+        url = f"{latest_url}&p={i}"
+        print(f"Fetching {url}")
+        response = requests.get(url)
         if response.status_code == 200:
             parse_response(response)
         else:

@@ -34,6 +34,11 @@ class Status(Enum):
     ACCEPTED = "Accepted"
 
 
+class Language(Enum):
+    ENGLISH = "eng"
+    SWEDISH = "swe"
+
+
 class Publication:
     abstract: str = None
     authors: List[Dict[str, str]] = None
@@ -41,6 +46,7 @@ class Publication:
     doi: str = None
     issn: str = None
     keywords: List[str] = None
+    language: Language = None
     publication_date: datetime = None
     status: Status = None
     title: str = None
@@ -56,6 +62,7 @@ class Publication:
 
     def __str__(self):
         return f"title:{self.title}\n" \
+               f"lang: {self.language}\n" \
                f"diva_id:{self.diva_id}\n" \
                f"date:{self.publication_date}"
 
@@ -102,6 +109,8 @@ class Publication:
             self.type = Type(first_result["type"])
             if "status" in first_result.keys():
                 self.status = Status(first_result["status"])
+            if "language" in first_result.keys():
+                self.language = Language(first_result["language"])
             self.title = first_result["title"]
             parse_authors(first_result)
             parse_identifiers(first_result)
