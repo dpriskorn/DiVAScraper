@@ -12,6 +12,7 @@ record_url = "http://www.diva-portal.org/smash/record.jsf"
 
 class Type(Enum):
     ARTICLE_JOURNAL = "article-journal"
+    ARTICLE_NEWSPAPER = "article-newspaper"
     BOOK = "book"
     CHAPTER = "chapter"
     CONFERENCE_PAPER = "paper-conference"
