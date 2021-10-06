@@ -20,6 +20,8 @@ class Type(Enum):
     MANUSCRIPT = "manuscript"
     REPORT = "report"
     REVIEW = "review"
+    REVIEW_BOOK = "review-book"
+    SPEECH = "speech"
     THESIS = "thesis"
 
 
@@ -59,8 +61,11 @@ class Publication:
             if "author" in first_result.keys():
                 self.authors = []
                 for author in first_result["author"]:
-                    author_dict = {"family_name": author["family"],
-                                   "given_name": author["given"]}
+                    author_dict = {}
+                    if "family" in author.keys():
+                        author_dict["family_name"] = author["family"]
+                    if "given" in author.keys():
+                        author_dict["given_name"] = author["given"]
                     if "ORCID" in author.keys():
                         author_dict["orcid"] = author["ORCID"]
             else:
@@ -113,10 +118,12 @@ class Publication:
         response = requests.get(url)
         if response.status_code == 200:
             response_text = response.text
-            # fix control character bug
+            # fix control character bug in www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1600051%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\n", "")\
             # fix \escape bug in www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1599119%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\p","p")
+            # fix www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
+            response_text = response_text.replace("\%","%")
             parse_response(json.loads(response_text))
         else:
             raise Exception(f"got {response.status_code} from DiVa")
