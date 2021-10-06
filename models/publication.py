@@ -30,6 +30,7 @@ class Status(Enum):
     PUBLISHED = "Published"
     EPUB_AHEAD_OF_PRINT = "Epub ahead of print"
     IN_PRESS = "In press"
+    ACCEPTED = "Accepted"
 
 
 class Publication:
