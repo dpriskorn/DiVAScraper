@@ -21,6 +21,7 @@ class Type(Enum):
     REPORT = "report"
     REVIEW = "review"
     REVIEW_BOOK = "review-book"
+    SONG = "song"
     SPEECH = "speech"
     THESIS = "thesis"
 
