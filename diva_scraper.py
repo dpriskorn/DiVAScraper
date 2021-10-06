@@ -33,7 +33,6 @@ def main():
         print(i)
         response = requests.get(f"{latest_url}&p={i}")
         if response.status_code == 200:
-            print(response.text[:50])
             parse_response(response)
         else:
             raise Exception(f"got {response.status_code} from DiVa")
