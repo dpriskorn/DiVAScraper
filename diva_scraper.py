@@ -29,7 +29,7 @@ def main():
     # &p=51 <- second page
     total_publications = 1765*50
     print(f"There are a total of {total_publications} latest publications to scrape")
-    for i in range(1301,total_publications,50):
+    for i in range(1451,total_publications,50):
         print(i)
         response = requests.get(f"{latest_url}&p={i}")
         if response.status_code == 200:

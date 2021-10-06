@@ -126,6 +126,7 @@ class Publication:
             response_text = response_text.replace("\p","p")
             # fix escape www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\%","%")
+            response_text = response_text.replace(" \o", " o")
             response_text = response_text.replace("\t", " ")
             parse_response(json.loads(response_text))
         else:
