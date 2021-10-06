@@ -122,8 +122,9 @@ class Publication:
             response_text = response_text.replace("\n", "")\
             # fix \escape bug in www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1599119%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\p","p")
-            # fix www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
+            # fix escape www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\%","%")
+            response_text = response_text.replace("\t", " ")
             parse_response(json.loads(response_text))
         else:
             raise Exception(f"got {response.status_code} from DiVa")
