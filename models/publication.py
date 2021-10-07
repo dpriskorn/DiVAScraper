@@ -32,6 +32,7 @@ class Status(Enum):
     EPUB_AHEAD_OF_PRINT = "Epub ahead of print"
     IN_PRESS = "In press"
     ACCEPTED = "Accepted"
+    SUBMITTED = "Submitted"
 
 
 class Language(Enum):
@@ -41,6 +42,9 @@ class Language(Enum):
     LATIN = "lat"
     ICELANDIC = "ice"
     FAROESE = "fao"
+    GREENLANDIC = "kal"
+    FINNISH = "fin"
+    NORWEGIAN = "nor"
 
 
 class Publication:

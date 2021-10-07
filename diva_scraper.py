@@ -43,8 +43,7 @@ def scrape_latest_publications():
 
 
 def scrape_medicine_category():
-    latest_url = "http://www.diva-portal.org/smash/latest.jsf?dswid=-9944"
-    medicine_category = "http://www.diva-portal.org/smash/resultList.jsf?dswid=-6166&" \
+    medicine_category_url = "http://www.diva-portal.org/smash/resultList.jsf?dswid=-6166&" \
                         "language=sv&searchType=SUBJECT&query=&" \
                         "af=%5B%5D&aq=%5B%5B%7B%22categoryId%22%3A%2211649%22%7D%5D%5D&aq2=%5B%5B%5D%5D&aqe=%5B%5D&" \
                         "noOfRows=250&sortOrder=author_sort_asc&sortOrder2=title_sort_asc&onlyFullText=false&sf=all"
@@ -53,9 +52,9 @@ def scrape_medicine_category():
     # &p=51 <- second page
     total_publications = 219750
     print(f"There are a total of {total_publications} medicine publications to scrape")
-    for i in range(1001,total_publications,250):
+    for i in range(3501,total_publications,250):
         print(i)
-        url = f"{latest_url}&p={i}"
+        url = f"{medicine_category_url}&p={i}"
         print(f"Fetching {url}")
         response = requests.get(url)
         if response.status_code == 200:
@@ -68,6 +67,7 @@ def scrape_medicine_category():
 
 def main():
     scrape_medicine_category()
+
 
 def parse_response(response):
     # Parse the html response
