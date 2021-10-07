@@ -9,6 +9,7 @@ and some authors also have ORCID
 """
 #!/usr/bin/env python3
 import logging
+from pprint import pprint
 from urllib.parse import urlparse, parse_qs
 
 import backoff as backoff
@@ -23,6 +24,7 @@ base_url = "http://www.diva-portal.org"
 record_url = "http://www.diva-portal.org/smash/record.jsf"
 type_error_count = 0
 publication_count = 0
+institutions = set()
 
 def scrape_latest_publications():
     latest_url = "http://www.diva-portal.org/smash/latest.jsf?dswid=-9944"
@@ -74,7 +76,7 @@ def main():
 
 
 def parse_response(response):
-    global type_error_count, publication_count
+    global type_error_count, publication_count, institutions
     logger = logging.getLogger(__name__)
     # Parse the html response
     soup = BeautifulSoup(response.text, features="html.parser")
@@ -103,7 +105,13 @@ def parse_response(response):
                     logger.error(f"could not print object for {publication_id[0]} "
                                  f"because of TypeError, "
                                  f"count: {type_error_count}/{publication_count}")
-                print(f"Total:{publication_count}")
+                if publication.authors is not None:
+                    for author in publication.authors:
+                        if author.affiliations is not None:
+                            for affiliation in author.affiliations:
+                                institutions.add(affiliation.name)
+                print(f"Number of institutions found: {len(institutions)} from a total of {publication_count} publications")
+                pprint(institutions)
 
 
 if __name__ == '__main__':

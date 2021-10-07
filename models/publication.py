@@ -8,6 +8,9 @@ import backoff
 import requests
 from dateutil.parser import isoparse
 
+from models.affiliation import Affiliation
+from models.author import Author
+
 record_url = "http://www.diva-portal.org/smash/record.jsf"
 
 
@@ -54,7 +57,7 @@ class Language(Enum):
 class Publication:
     abstract: str = None
     affiliations: List[str] = None
-    authors: List[Dict[str, Union[str, Dict]]] = None
+    authors: List[Author] = None
     container_title: str = None
     diva_id: str = None
     doi: str = None
@@ -120,29 +123,27 @@ class Publication:
             if "author" in publication.keys():
                 logger.debug(f'author found:{publication["author"]}')
                 self.authors = []
-                for author in publication["author"]:
-                    author_dict = {}
-                    if "family" in author.keys():
-                        author_dict["family_name"] = author["family"]
-                    if "given" in author.keys():
-                        author_dict["given_name"] = author["given"]
-                    if "affiliation" in author.keys():
+                for author_json in publication["author"]:
+                    author = Author()
+                    if "given" in author_json.keys():
+                        author.given_name = author_json["given"]
+                    if "family" in author_json.keys():
+                        author.family_name = author_json["family"]
+                    if "orcid" in author_json.keys():
+                        author.orcid = author_json["orcid"]
+                    if "affiliation" in author_json.keys():
                         logger.info("Found affiliation")
-                        affiliations = author["affiliation"]
-                        affiliations_list = []
-                        for affiliation in affiliations:
-                            affiliation_dict = {}
-                            if "name" in affiliation:
-                                affiliation_dict["name"] = affiliation["name"]
+                        author.affiliations = []
+                        for affiliation_json in author_json["affiliation"]:
+                            affiliation = Affiliation()
+                            if "name" in affiliation_json:
+                                affiliation.name = affiliation_json["name"].replace("^, ", "").strip()
                             # TODO find out where we can get more information on this id,
                             #  where does it come from?
-                            if "id" in affiliation:
-                                affiliation_dict["id"] = affiliation["id"]
-                            affiliations_list.append(affiliation_dict)
-                        author_dict["affiliation"] = affiliations_list
-                    if "ORCID" in author.keys():
-                        author_dict["orcid"] = author["ORCID"]
-                    self.authors.append(author_dict)
+                            if "id" in affiliation_json:
+                                affiliation.id = affiliation_json["id"]
+                            author.affiliations.append(affiliation)
+                    self.authors.append(author)
             else:
                 logger.warning("no authors found")
 
@@ -207,32 +208,6 @@ class Publication:
             raise ValueError("no publication found in the json")
 
     def __str__(self):
-        def parse_authors():
-            if self.authors is not None and len(self.authors) > 0:
-                authors = []
-                for author in self.authors:
-                    author_string = "* "
-                    if "given_name" in author.keys():
-                        author_string = author_string + author["given_name"]
-                    if "family_name" in author.keys():
-                        author_string = f'{author_string} {author["family_name"]}'
-                    if "orcid" in author.keys():
-                        author_string = f'{author_string} ({author["orcid"]})'
-                    if "affiliation" in author.keys():
-                        affiliations = []
-                        for affiliation in author["affiliation"]:
-                            affiliation_string = ""
-                            if "name" in affiliation:
-                                affiliation_string = f'{affiliation_string + affiliation["name"]}'
-                            if "id" in affiliation:
-                                affiliation_string = f'{affiliation_string} id:{affiliation["id"]}'
-                            affiliations.append(affiliation_string)
-                        author_string = f'{author_string} [{"; ".join(affiliations)}]'
-                    authors.append(author_string)
-                return "\n".join(authors)
-            else:
-                return None
-
         def parse_keywords():
             if self.keywords is not None and len(self.keywords) > 0:
                 return "; ".join(self.keywords)
@@ -243,7 +218,7 @@ class Publication:
         logger = logging.getLogger(__name__)
         # logger.debug(self.title)
         keywords = parse_keywords()
-        authors = parse_authors()
+        authors = [str(author) for author in self.authors]
         return (
             f"title: {self.title}\n" +
             f"authors: \n{authors}\n" +
