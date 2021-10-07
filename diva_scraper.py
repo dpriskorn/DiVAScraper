@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 
 from models.publication import Publication
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 base_url = "http://www.diva-portal.org"
 record_url = "http://www.diva-portal.org/smash/record.jsf"
@@ -55,7 +55,7 @@ def scrape_medicine_category():
     # &p=51 <- second page
     total_publications = 219750
     print(f"There are a total of {total_publications} medicine publications to scrape")
-    for i in range(4501,total_publications,250):
+    for i in range(4801,total_publications,250):
         print(i)
         url = f"{medicine_category_url}&p={i}"
         print(f"Fetching {url}")
@@ -90,7 +90,9 @@ def parse_response(response):
                 if len(publication_id) != 1:
                     raise ValueError(f"more than one publication_id {publication_id}")
                 publication = Publication(diva_id=publication_id[0])
-                print(publication)
+                if publication is None:
+                    raise ValueError(f"publication object was None for {publication_id[0]}")
+                print(publication.title)
                 # break
 
 
