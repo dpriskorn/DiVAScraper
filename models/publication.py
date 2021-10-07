@@ -48,6 +48,7 @@ class Language(Enum):
     NORWEGIAN = "nor"
     SPANISH = "spa"
     HUNGARIAN = "hun"
+    GERMAN = "ger"
 
 
 class Publication:
@@ -210,7 +211,7 @@ class Publication:
             if self.authors is not None and len(self.authors) > 0:
                 authors = []
                 for author in self.authors:
-                    author_string = ""
+                    author_string = "* "
                     if "given_name" in author.keys():
                         author_string = author_string + author["given_name"]
                     if "family_name" in author.keys():
@@ -228,7 +229,7 @@ class Publication:
                             affiliations.append(affiliation_string)
                         author_string = f'{author_string} [{"; ".join(affiliations)}]'
                     authors.append(author_string)
-                return "; ".join(authors)
+                return "\n".join(authors)
             else:
                 return None
 
@@ -244,18 +245,18 @@ class Publication:
         keywords = parse_keywords()
         authors = parse_authors()
         return (
-            f"title:{self.title}\n"
-            f"authors: {authors}\n"
-            f"supervisor: {self.supervisor}\n"
-            f"keywords: {keywords}\n"
-            f"lang: {self.language.name}\n"
-            f"doi: {self.doi_url()}\n"
-            f"pubmed_id: {self.pubmed_url()}\n"
-            # f"diva_id: {self.diva_id}\n"
-            f"date: {self.publication_date}\n"
-            f"publisher: {self.publisher}\n"
-            f"volume: {self.volume} page: {self.page} number: {self.number}\n"
-            f"note: {self.note}\n"
+            f"title: {self.title}\n" +
+            f"authors: \n{authors}\n" +
+            f"supervisor: {self.supervisor}\n" +
+            f"keywords: {keywords}\n" +
+            f"lang: {self.language.name}\n" +
+            f"doi: {self.doi_url()}\n" +
+            f"pubmed_id: {self.pubmed_url()}\n" +
+            # f"diva_id: {self.diva_id}\n" +
+            f"date: {self.publication_date}\n" +
+            f"publisher: {self.publisher}\n" +
+            f"volume: {self.volume} page: {self.page} number: {self.number}\n" +
+            f"note: {self.note}\n" +
             f"abstract: {self.abstract[:50]}"
         )
 
