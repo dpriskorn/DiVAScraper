@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 
 from models.publication import Publication
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 base_url = "http://www.diva-portal.org"
 record_url = "http://www.diva-portal.org/smash/record.jsf"
@@ -73,6 +73,7 @@ def main():
 
 
 def parse_response(response):
+    logger = logging.getLogger(__name__)
     # Parse the html response
     soup = BeautifulSoup(response.text, features="html.parser")
     search_items = soup.select("li", class_="ui-datalist-item")
@@ -92,7 +93,11 @@ def parse_response(response):
                 publication = Publication(diva_id=publication_id[0])
                 if publication is None:
                     raise ValueError(f"publication object was None for {publication_id[0]}")
-                print(publication.title)
+                # print(publication)
+                try:
+                    print(publication)
+                except TypeError:
+                    logger.error(f"could not print object for {publication_id[0]} because of TypeError")
                 # break
 
 
