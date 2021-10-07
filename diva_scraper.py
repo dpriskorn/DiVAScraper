@@ -103,7 +103,7 @@ def parse_response(response):
                     logger.error(f"could not print object for {publication_id[0]} "
                                  f"because of TypeError, "
                                  f"count: {type_error_count}/{publication_count}")
-                # break
+                print(f"Total:{publication_count}")
 
 
 if __name__ == '__main__':
