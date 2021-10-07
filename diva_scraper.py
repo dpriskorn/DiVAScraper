@@ -11,6 +11,7 @@ and some authors also have ORCID
 import logging
 from urllib.parse import urlparse, parse_qs
 
+import backoff as backoff
 import requests
 from bs4 import BeautifulSoup
 
@@ -42,6 +43,8 @@ def scrape_latest_publications():
         #     break
 
 
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException)
 def scrape_medicine_category():
     medicine_category_url = "http://www.diva-portal.org/smash/resultList.jsf?dswid=-6166&" \
                         "language=sv&searchType=SUBJECT&query=&" \
@@ -52,7 +55,7 @@ def scrape_medicine_category():
     # &p=51 <- second page
     total_publications = 219750
     print(f"There are a total of {total_publications} medicine publications to scrape")
-    for i in range(3501,total_publications,250):
+    for i in range(4501,total_publications,250):
         print(i)
         url = f"{medicine_category_url}&p={i}"
         print(f"Fetching {url}")

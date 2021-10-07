@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Dict
 
+import backoff
 import requests
 from dateutil.parser import isoparse
 
@@ -45,6 +46,8 @@ class Language(Enum):
     GREENLANDIC = "kal"
     FINNISH = "fin"
     NORWEGIAN = "nor"
+    SPANISH = "spa"
+    HUNGARIAN = "hun"
 
 
 class Publication:
@@ -74,6 +77,8 @@ class Publication:
                f"diva_id:{self.diva_id}\n" \
                f"date:{self.publication_date}"
 
+    @backoff.on_exception(backoff.expo,
+                          requests.exceptions.RequestException)
     def __fetch_json__(self):
         def parse_authors(first_result):
             if "author" in first_result.keys():
@@ -138,13 +143,16 @@ class Publication:
         response = requests.get(url)
         if response.status_code == 200:
             response_text = response.text
-            # fix control character bug in www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1600051%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
+            # fix control character bug in
+            # www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1600051%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\n", "")\
-            # fix \escape bug in www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1599119%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
+            # fix \escape bug in
+            # www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1599119%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
             response_text = response_text.replace("\p","p")
-            # fix escape www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
-            response_text = response_text.replace("\%","%")
-            response_text = response_text.replace(" \o", " o")
+            # fix escape
+            # www.diva-portal.org/smash/export.jsf?format=csl_json&addFilename=true&aq=[[{%22id%22:%22diva2:1596811%22}]]&aqe=[]&aq2=[[]]&onlyFullText=false&noOfRows=50&sortOrder=title_sort_asc&sortOrder2=title_sort_asc
+            response_text = response_text.replace("\\%", "%")
+            response_text = response_text.replace(" \\o", " o")
             response_text = response_text.replace("\t", " ")
             parse_response(json.loads(response_text))
         else:
