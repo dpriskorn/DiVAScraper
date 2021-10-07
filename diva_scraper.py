@@ -21,7 +21,8 @@ logging.basicConfig(level=logging.WARNING)
 
 base_url = "http://www.diva-portal.org"
 record_url = "http://www.diva-portal.org/smash/record.jsf"
-
+type_error_count = 0
+publication_count = 0
 
 def scrape_latest_publications():
     latest_url = "http://www.diva-portal.org/smash/latest.jsf?dswid=-9944"
@@ -73,6 +74,7 @@ def main():
 
 
 def parse_response(response):
+    global type_error_count, publication_count
     logger = logging.getLogger(__name__)
     # Parse the html response
     soup = BeautifulSoup(response.text, features="html.parser")
@@ -93,11 +95,14 @@ def parse_response(response):
                 publication = Publication(diva_id=publication_id[0])
                 if publication is None:
                     raise ValueError(f"publication object was None for {publication_id[0]}")
-                # print(publication)
+                publication_count += 1
                 try:
                     print(publication)
                 except TypeError:
-                    logger.error(f"could not print object for {publication_id[0]} because of TypeError")
+                    type_error_count += 1
+                    logger.error(f"could not print object for {publication_id[0]} "
+                                 f"because of TypeError, "
+                                 f"count: {type_error_count}/{publication_count}")
                 # break
 
 
