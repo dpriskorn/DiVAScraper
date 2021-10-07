@@ -22,7 +22,7 @@ base_url = "http://www.diva-portal.org"
 record_url = "http://www.diva-portal.org/smash/record.jsf"
 
 
-def main():
+def scrape_latest_publications():
     latest_url = "http://www.diva-portal.org/smash/latest.jsf?dswid=-9944"
     # has 1765 pages with 50 publications each.
     # &p=1 <- first page
@@ -41,6 +41,33 @@ def main():
         # if i == 1:
         #     break
 
+
+def scrape_medicine_category():
+    latest_url = "http://www.diva-portal.org/smash/latest.jsf?dswid=-9944"
+    medicine_category = "http://www.diva-portal.org/smash/resultList.jsf?dswid=-6166&" \
+                        "language=sv&searchType=SUBJECT&query=&" \
+                        "af=%5B%5D&aq=%5B%5B%7B%22categoryId%22%3A%2211649%22%7D%5D%5D&aq2=%5B%5B%5D%5D&aqe=%5B%5D&" \
+                        "noOfRows=250&sortOrder=author_sort_asc&sortOrder2=title_sort_asc&onlyFullText=false&sf=all"
+    # has >200.000 objects.
+    # &p=1 <- first page
+    # &p=51 <- second page
+    total_publications = 219750
+    print(f"There are a total of {total_publications} medicine publications to scrape")
+    for i in range(1,total_publications,250):
+        print(i)
+        url = f"{latest_url}&p={i}"
+        print(f"Fetching {url}")
+        response = requests.get(url)
+        if response.status_code == 200:
+            parse_response(response)
+        else:
+            raise Exception(f"got {response.status_code} from DiVa")
+        if i == 1:
+            break
+
+
+def main():
+    scrape_medicine_category()
 
 def parse_response(response):
     # Parse the html response

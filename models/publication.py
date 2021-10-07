@@ -37,6 +37,7 @@ class Status(Enum):
 class Language(Enum):
     ENGLISH = "eng"
     SWEDISH = "swe"
+    DANISH = "dan"
 
 
 class Publication:
