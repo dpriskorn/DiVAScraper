@@ -38,6 +38,9 @@ class Language(Enum):
     ENGLISH = "eng"
     SWEDISH = "swe"
     DANISH = "dan"
+    LATIN = "lat"
+    ICELANDIC = "ice"
+    FAROESE = "fao"
 
 
 class Publication:

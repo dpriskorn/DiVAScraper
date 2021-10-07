@@ -53,7 +53,7 @@ def scrape_medicine_category():
     # &p=51 <- second page
     total_publications = 219750
     print(f"There are a total of {total_publications} medicine publications to scrape")
-    for i in range(1,total_publications,250):
+    for i in range(1001,total_publications,250):
         print(i)
         url = f"{latest_url}&p={i}"
         print(f"Fetching {url}")
@@ -62,8 +62,8 @@ def scrape_medicine_category():
             parse_response(response)
         else:
             raise Exception(f"got {response.status_code} from DiVa")
-        if i == 1:
-            break
+        #if i == 1:
+        #    break
 
 
 def main():
