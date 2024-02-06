@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "divascraper"
+version = "0.1.0"
+description = "Tool that scrapes publications from DiVA"
+authors = ["Your Name <you@example.com>"]
+license = "GPLv3+"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.3"
+python-dateutil = "^2.8.2"
+backoff = "^2.2.1"
+pydantic = "^2.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

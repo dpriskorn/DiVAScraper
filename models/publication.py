@@ -2,12 +2,14 @@ import json
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import List, Dict, Union
+from typing import List
 
 import backoff
 import requests
 from dateutil.parser import isoparse
+from pydantic import BaseModel
 
+import config
 from models.affiliation import Affiliation
 from models.author import Author
 
@@ -54,38 +56,41 @@ class Language(Enum):
     GERMAN = "ger"
 
 
-class Publication:
-    abstract: str = None
-    affiliations: List[str] = None
-    authors: List[Author] = None
-    container_title: str = None
-    diva_id: str = None
-    doi: str = None
-    funding_agencies: List[str] = None
-    issn: str = None
-    keywords: List[str] = None
+class Publication(BaseModel):
+    abstract: str = ""
+    affiliations: List[str] = list()
+    authors: List[Author] = list()
+    container_title: str = ""
+    diva_id: str = ""
+    doi: str = ""
+    funding_agencies: List[str] = list()
+    issn: str = ""
+    keywords: List[str] = ""
     language: Language = None
     # Notes often contain information about funding.
-    note: str = None
-    number: str = None
-    number_of_pages: str = None
-    page: str = None
-    pubmed_id: str = None
+    note: str = ""
+    number: str = ""
+    number_of_pages: str = ""
+    page: str = ""
+    pubmed_id: str = ""
     publication_date: datetime = None
-    publisher: str = None
-    supervisor: str = None
+    publisher: str = ""
+    supervisor: str = ""
     status: Status = None
-    title: str = None
+    title: str = ""
     type: Type = None
-    urn_nbn: str = None
-    volume: str = None
+    urn_nbn: str = ""
+    volume: str = ""
 
-    def __init__(self, diva_id: str = None):
-        if diva_id is None:
-            raise ValueError("got no diva_id")
-        else:
-            self.diva_id = diva_id
-            self.__fetch_json__()
+    # def __init__(self, diva_id: str = None):
+    #     if diva_id is None:
+    #         raise ValueError("got no diva_id")
+    #     else:
+    #         self.diva_id = diva_id
+    #         self.__fetch_json__()
+
+    def start(self):
+        self.__fetch_json__()
 
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException)
@@ -100,7 +105,7 @@ class Publication:
                  f'sortOrder=title_sort_asc&sortOrder2=title_sort_asc')
         url = export_url + query
         logger.info(f"Fetching {url}")
-        response = requests.get(url)
+        response = requests.get(url, headers=config.headers)
         if response.status_code == 200:
             response_text = response.text
             # fix control character bug in
@@ -188,7 +193,7 @@ class Publication:
 
         logger = logging.getLogger(__name__)
         first_publication = json[0]
-        if first_publication is not None:
+        if first_publication:
             logger.debug(first_publication.keys())
             # Always present
             if "type" in first_publication.keys():
@@ -207,42 +212,42 @@ class Publication:
         else:
             raise ValueError("no publication found in the json")
 
-    def __str__(self):
-        def parse_keywords():
-            if self.keywords is not None and len(self.keywords) > 0:
-                return "; ".join(self.keywords)
-            else:
-                # logger.warning("no keywords found")
-                return None
-
-        logger = logging.getLogger(__name__)
-        # logger.debug(self.title)
-        keywords = parse_keywords()
-        authors = [str(author) for author in self.authors]
-        return (
-            f"title: {self.title}\n" +
-            f"authors: \n{authors}\n" +
-            f"supervisor: {self.supervisor}\n" +
-            f"keywords: {keywords}\n" +
-            f"lang: {self.language.name}\n" +
-            f"doi: {self.doi_url()}\n" +
-            f"pubmed_id: {self.pubmed_url()}\n" +
-            # f"diva_id: {self.diva_id}\n" +
-            f"date: {self.publication_date}\n" +
-            f"publisher: {self.publisher}\n" +
-            f"volume: {self.volume} page: {self.page} number: {self.number}\n" +
-            f"note: {self.note}\n" +
-            f"abstract: {self.abstract[:50]}"
-        )
+    # def __str__(self):
+    #     def parse_keywords():
+    #         if self.keywords and len(self.keywords) > 0:
+    #             return "; ".join(self.keywords)
+    #         else:
+    #             # logger.warning("no keywords found")
+    #             return None
+    #
+    #     logger = logging.getLogger(__name__)
+    #     # logger.debug(self.title)
+    #     keywords = parse_keywords()
+    #     authors = [str(author) for author in self.authors]
+    #     return (
+    #         f"title: {self.title}\n" +
+    #         f"authors: \n{authors}\n" +
+    #         f"supervisor: {self.supervisor}\n" +
+    #         f"keywords: {keywords}\n" +
+    #         f"lang: {self.language.name}\n" +
+    #         f"doi: {self.doi_url()}\n" +
+    #         f"pubmed_id: {self.pubmed_url()}\n" +
+    #         # f"diva_id: {self.diva_id}\n" +
+    #         f"date: {self.publication_date}\n" +
+    #         f"publisher: {self.publisher}\n" +
+    #         f"volume: {self.volume} page: {self.page} number: {self.number}\n" +
+    #         f"note: {self.note}\n" +
+    #         f"abstract: {self.abstract[:50]}"
+    #     )
 
     def doi_url(self):
-        if self.doi is not None:
+        if self.doi:
             return f"https://doi.org/{self.doi}"
         else:
             return None
 
     def pubmed_url(self):
-        if self.pubmed_id is not None:
+        if self.pubmed_id:
             return f"https://pubmed.ncbi.nlm.nih.gov/{self.pubmed_id}"
         else:
             return None
