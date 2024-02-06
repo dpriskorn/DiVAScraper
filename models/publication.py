@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from enum import Enum
 from typing import List
+from urllib.parse import quote
 
 import backoff
 import requests
@@ -244,10 +245,14 @@ class Publication(BaseModel):
         if self.doi:
             return f"https://doi.org/{self.doi}"
         else:
-            return None
+            return ""
 
     def pubmed_url(self):
         if self.pubmed_id:
             return f"https://pubmed.ncbi.nlm.nih.gov/{self.pubmed_id}"
         else:
-            return None
+            return ""
+
+    @property
+    def kb_urn_url(self) -> str:
+        return f"https://urn.kb.se/resolve?urn={quote(self.urn_nbn)}" if self.urn_nbn else ""

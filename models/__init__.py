@@ -114,6 +114,8 @@ class DivaScraper(BaseModel):
                     #     raise ValueError(f"publication object was None for {publication_id[0]}")
                     self.publication_count += 1
                     pprint(publication.model_dump())
+                    print(publication.kb_urn_url)
+                    # exit()
                     # try:
                     #     pprint(publication.model_dump())
                     # except TypeError:
