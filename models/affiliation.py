@@ -1,10 +1,9 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class Affiliation:
-    id: int = None
-    name: str = None
+class Affiliation(BaseModel):
+    id: int = 0
+    name: str = ""
 
     def __str__(self):
         return f"{self.name} id:{self.id}"

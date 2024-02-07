@@ -1,7 +1,6 @@
 import json
 import logging
 from datetime import datetime
-from enum import Enum
 from typing import List
 from urllib.parse import quote
 
@@ -13,48 +12,10 @@ from pydantic import BaseModel
 import config
 from models.affiliation import Affiliation
 from models.author import Author
+from models.enums import Language, PublicationStatus, PublicationType
 
 record_url = "http://www.diva-portal.org/smash/record.jsf"
-
-
-class Type(Enum):
-    ARTICLE_JOURNAL = "article-journal"
-    ARTICLE_NEWSPAPER = "article-newspaper"
-    BOOK = "book"
-    CHAPTER = "chapter"
-    CONFERENCE_PAPER = "paper-conference"
-    DATASET = "dataset"
-    DISSERTATION = "dissertation"
-    MANUSCRIPT = "manuscript"
-    REPORT = "report"
-    REVIEW = "review"
-    REVIEW_BOOK = "review-book"
-    SONG = "song"
-    SPEECH = "speech"
-    THESIS = "thesis"
-
-
-class Status(Enum):
-    PUBLISHED = "Published"
-    EPUB_AHEAD_OF_PRINT = "Epub ahead of print"
-    IN_PRESS = "In press"
-    ACCEPTED = "Accepted"
-    SUBMITTED = "Submitted"
-
-
-class Language(Enum):
-    ENGLISH = "eng"
-    SWEDISH = "swe"
-    DANISH = "dan"
-    LATIN = "lat"
-    ICELANDIC = "ice"
-    FAROESE = "fao"
-    GREENLANDIC = "kal"
-    FINNISH = "fin"
-    NORWEGIAN = "nor"
-    SPANISH = "spa"
-    HUNGARIAN = "hun"
-    GERMAN = "ger"
+logger = logging.getLogger(__name__)
 
 
 class Publication(BaseModel):
@@ -77,9 +38,9 @@ class Publication(BaseModel):
     publication_date: datetime = None
     publisher: str = ""
     supervisor: str = ""
-    status: Status = None
+    status: PublicationStatus = None
     title: str = ""
-    type: Type = None
+    type: PublicationType = None
     urn_nbn: str = ""
     volume: str = ""
 
@@ -192,15 +153,14 @@ class Publication(BaseModel):
             if "published" in publication.keys():
                 self.publication_date = isoparse(publication["published"][0]["raw"])
 
-        logger = logging.getLogger(__name__)
         first_publication = json[0]
         if first_publication:
             logger.debug(first_publication.keys())
             # Always present
             if "type" in first_publication.keys():
-                self.type = Type(first_publication["type"])
+                self.type = PublicationType(first_publication["type"])
             if "status" in first_publication.keys():
-                self.status = Status(first_publication["status"])
+                self.status = PublicationStatus(first_publication["status"])
             if "language" in first_publication.keys():
                 self.language = Language(first_publication["language"])
             if "title" in first_publication.keys():

@@ -1,15 +1,15 @@
-from dataclasses import dataclass
 from typing import List
+
+from pydantic import BaseModel
 
 from models.affiliation import Affiliation
 
 
-@dataclass
-class Author:
-    given_name: str = None
-    family_name: str = None
-    affiliations: List[Affiliation] = None
-    orcid: str = None
+class Author(BaseModel):
+    given_name: str = ""
+    family_name: str = ""
+    affiliations: List[Affiliation] = list()
+    orcid: str = ""
 
     def __str__(self):
         return f"* {self.given_name} {self.family_name} " \

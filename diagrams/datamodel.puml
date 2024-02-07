@@ -1,0 +1,127 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+enum Type {
+    ARTICLE_JOURNAL = "article-journal"
+    ARTICLE_NEWSPAPER = "article-newspaper"
+    BOOK = "book"
+    CHAPTER = "chapter"
+    CONFERENCE_PAPER = "paper-conference"
+    DATASET = "dataset"
+    DISSERTATION = "dissertation"
+    MANUSCRIPT = "manuscript"
+    REPORT = "report"
+    REVIEW = "review"
+    REVIEW_BOOK = "review-book"
+    SONG = "song"
+    SPEECH = "speech"
+    THESIS = "thesis"
+}
+
+enum Status {
+    PUBLISHED = "Published"
+    EPUB_AHEAD_OF_PRINT = "Epub ahead of print"
+    IN_PRESS = "In press"
+    ACCEPTED = "Accepted"
+    SUBMITTED = "Submitted"
+}
+
+enum Language {
+    ENGLISH = "eng"
+    SWEDISH = "swe"
+    DANISH = "dan"
+    LATIN = "lat"
+    ICELANDIC = "ice"
+    FAROESE = "fao"
+    GREENLANDIC = "kal"
+    FINNISH = "fin"
+    NORWEGIAN = "nor"
+    SPANISH = "spa"
+    HUNGARIAN = "hun"
+    GERMAN = "ger"
+}
+
+publication -- Status
+publication -- Type
+publication -- Language
+
+class publication {
+    - abstract TEXT
+    - container_title TEXT
+    - diva_id TEXT NOT NULL
+    - doi TEXT
+    - issn TEXT
+    - language varchar(100)
+    - note TEXT
+    - number TEXT
+    - number_of_pages TEXT
+    - page TEXT
+    - pubmed_id TEXT
+    - publication_date: datetime = None
+    - publisher TEXT
+    - supervisor TEXT
+    - status: varchar(100)
+    - title TEXT
+    - type: Type = None
+    - urn_nbn TEXT NOT NULL
+    - volume TEXT
+}
+
+class funder {
+    - id PRIMARY AUTOINCREMENT
+    - name TEXT NOT NULL
+}
+
+class publication_funder_linking {
+    - publication INT PRIMARY
+    - funder INT PRIMARY
+    composite key
+}
+
+
+class affiliation {
+    - index INT PRIMARY
+    - id INT
+    - name TEXT NOT NULL
+}
+
+class author {
+    - given_name TEXT
+    - family_name TEXT
+    - orcid TEXT
+}
+
+class author_affiliation_linking{
+    author INT PRIMARY
+    affiliation INT PRIMARY
+    composite index
+}
+
+class author_publication_linking{
+    author INT PRIMARY
+    publication INT PRIMARY
+    composite index
+}
+author_affiliation_linking }--{ author
+author_affiliation_linking }--{ affiliation
+author_publication_linking }--{ author
+author_publication_linking }--{ publication
+publication_funder_linking }--{ publication
+publication_funder_linking }--{ funder
+
+class keyword {
+    id INT AUTOINCREMENT PRIMARY
+    string TEXT NOT NULL
+    qid INT
+}
+
+class publication_keyword_linking{
+    keyword INT PRIMARY
+    publication INT PRIMARY
+    composite index
+}
+publication_keyword_linking }--{ publication
+publication_keyword_linking }--{ keyword
+
+@enduml
