@@ -7,6 +7,7 @@ from urllib.parse import quote
 import backoff
 import requests
 from dateutil.parser import isoparse
+from jsonlines import jsonlines
 from pydantic import BaseModel
 
 import config
@@ -27,7 +28,7 @@ class Publication(BaseModel):
     doi: str = ""
     funding_agencies: List[str] = list()
     issn: str = ""
-    keywords: List[str] = ""
+    keywords: List[str] = list()
     language: Language = None
     # Notes often contain information about funding.
     note: str = ""
@@ -51,13 +52,18 @@ class Publication(BaseModel):
     #         self.diva_id = diva_id
     #         self.__fetch_json__()
 
-    def start(self):
+    def fetch_and_store(self):
         self.__fetch_json__()
+        self.__append_to_jsonl()
+        # exit()
+
+    def __append_to_jsonl(self):
+        with jsonlines.open(config.file_path, mode='a') as writer:
+            writer.write(self.model_dump(mode="json"))
 
     @backoff.on_exception(backoff.expo,
                           requests.exceptions.RequestException)
     def __fetch_json__(self):
-        logger = logging.getLogger(__name__)
         # This syntax was found via
         # http://www.diva-portal.org/smash/builder.jsf?searchType=FEED&dswid=-4917
         export_url = "http://www.diva-portal.org/smash/export.jsf"
@@ -89,7 +95,6 @@ class Publication(BaseModel):
         def parse_authors(publication):
             if "author" in publication.keys():
                 logger.debug(f'author found:{publication["author"]}')
-                self.authors = []
                 for author_json in publication["author"]:
                     author = Author()
                     if "given" in author_json.keys():
@@ -100,7 +105,6 @@ class Publication(BaseModel):
                         author.orcid = author_json["orcid"]
                     if "affiliation" in author_json.keys():
                         logger.info("Found affiliation")
-                        author.affiliations = []
                         for affiliation_json in author_json["affiliation"]:
                             affiliation = Affiliation()
                             if "name" in affiliation_json:
@@ -108,7 +112,7 @@ class Publication(BaseModel):
                             # TODO find out where we can get more information on this id,
                             #  where does it come from?
                             if "id" in affiliation_json:
-                                affiliation.id = affiliation_json["id"]
+                                affiliation.id = int(affiliation_json["id"])
                             author.affiliations.append(affiliation)
                     self.authors.append(author)
             else:
@@ -124,7 +128,7 @@ class Publication(BaseModel):
 
         def parse_keywords(publication):
             if "keyword" in publication.keys():
-                self.keywords = []
+                logger.debug("parsing keywords")
                 for keyword in publication["keyword"].split("; "):
                     self.keywords.append(keyword)
 
@@ -173,40 +177,14 @@ class Publication(BaseModel):
         else:
             raise ValueError("no publication found in the json")
 
-    # def __str__(self):
-    #     def parse_keywords():
-    #         if self.keywords and len(self.keywords) > 0:
-    #             return "; ".join(self.keywords)
-    #         else:
-    #             # logger.warning("no keywords found")
-    #             return None
-    #
-    #     logger = logging.getLogger(__name__)
-    #     # logger.debug(self.title)
-    #     keywords = parse_keywords()
-    #     authors = [str(author) for author in self.authors]
-    #     return (
-    #         f"title: {self.title}\n" +
-    #         f"authors: \n{authors}\n" +
-    #         f"supervisor: {self.supervisor}\n" +
-    #         f"keywords: {keywords}\n" +
-    #         f"lang: {self.language.name}\n" +
-    #         f"doi: {self.doi_url()}\n" +
-    #         f"pubmed_id: {self.pubmed_url()}\n" +
-    #         # f"diva_id: {self.diva_id}\n" +
-    #         f"date: {self.publication_date}\n" +
-    #         f"publisher: {self.publisher}\n" +
-    #         f"volume: {self.volume} page: {self.page} number: {self.number}\n" +
-    #         f"note: {self.note}\n" +
-    #         f"abstract: {self.abstract[:50]}"
-    #     )
-
+    @property
     def doi_url(self):
         if self.doi:
             return f"https://doi.org/{self.doi}"
         else:
             return ""
 
+    @property
     def pubmed_url(self):
         if self.pubmed_id:
             return f"https://pubmed.ncbi.nlm.nih.gov/{self.pubmed_id}"

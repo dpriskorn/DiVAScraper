@@ -10,3 +10,4 @@ headers = {
     # 'Cookie': 'JSESSIONID=J75dOWOOMkAhh6XXAIuVxAveod0Bo2t_8xD4RMIK.d29a719cc26d',
     'Upgrade-Insecure-Requests': '1',
 }
+file_path = "publications.jsonl"

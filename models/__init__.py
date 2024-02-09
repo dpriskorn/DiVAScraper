@@ -96,7 +96,11 @@ class DivaScraper(BaseModel):
         search_items = soup.select("li", class_="ui-datalist-item")
         print(f"found {len(search_items)} search_items")
         # exit()
+        count = 0
         for item in search_items:
+            if count >= 100:
+                # quit after 100
+                exit(0)
             link = item.find("a", class_='titleLink')
             if link:
                 href = link["href"]
@@ -109,12 +113,13 @@ class DivaScraper(BaseModel):
                     if len(publication_id) != 1:
                         raise ValueError(f"more than one publication_id: {publication_id}")
                     publication = Publication(diva_id=publication_id[0])
-                    publication.start()
+                    publication.fetch_and_store()
                     # if publication is None:
                     #     raise ValueError(f"publication object was None for {publication_id[0]}")
                     self.publication_count += 1
-                    pprint(publication.model_dump())
-                    print(publication.kb_urn_url)
+                    #pprint(publication.model_dump())
+                    print(f"Fetched {publication.kb_urn_url} "
+                          f"with title '{publication.title}'")
                     # exit()
                     # try:
                     #     pprint(publication.model_dump())
