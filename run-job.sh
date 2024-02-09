@@ -1,0 +1,1 @@
+pip install poetry ; poetry install ; python3 diva_scraper.py
